@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
       error: "Method not allowed",
@@ -18,12 +18,12 @@ export default async function handler(req, res) {
 
     if (!apiKey) {
       return res.status(500).json({
-        error: "Falta GEMINI_API_KEY en Vercel",
+        error: "Falta GEMINI_API_KEY",
       });
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {
@@ -32,6 +32,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [
             {
+              role: "user",
               parts: [
                 {
                   text: prompt,
@@ -45,7 +46,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    console.log(data);
+    console.log("GEMINI:", data);
 
     if (!response.ok) {
       return res.status(500).json({
@@ -59,11 +60,11 @@ export default async function handler(req, res) {
     return res.status(200).json({
       result: text,
     });
-  } catch (error) {
-    console.error(error);
+  } catch (err) {
+    console.error(err);
 
     return res.status(500).json({
-      error: error.message,
+      error: err.message,
     });
   }
-}
+};
